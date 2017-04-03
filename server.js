@@ -1,6 +1,7 @@
 const bodyParser = require('body-parser');
 const express = require('express');
 const mongoose = require('mongoose');
+const morgan = require('morgan');
 
 mongoose.Promise = global.Promise;
 
@@ -10,6 +11,7 @@ const {PORT, DATABASE_URL} = require('./config');
 const {Blogpost} = require('./models');
 
 const app = express();
+app.use(morgan('common'));
 app.use(bodyParser.json());
 
 // GET requests
@@ -45,9 +47,9 @@ app.get('/blogpost/:id', (req, res) => {
     });
 });
 
-app.post('/restaurants', (req, res) => {
+app.post('/blogpost', (req, res) => {
 
-  const requiredFields = ['name', 'borough', 'cuisine'];
+  const requiredFields = ['title', 'content', 'author'];
   for (let i=0; i<requiredFields.length; i++) {
     const field = requiredFields[i];
     if (!(field in req.body)) {
@@ -62,8 +64,6 @@ app.post('/restaurants', (req, res) => {
       title: req.body.title,
       content: req.body.content,
       author: req.body.author
-      // grades: req.body.grades,
-      // address: req.body.address})
     .then(
       blogpost => res.status(201).json(blogpost.apiRepr()))
     .catch(err => {

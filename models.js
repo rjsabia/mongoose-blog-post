@@ -2,12 +2,13 @@ const mongoose = require('mongoose');
 
 // this is our schema to represent a restaurant
 const blogpostSchema = mongoose.Schema({
-  title: {type: String, required: true},
-  content: {type: String, required: true},
   author: {
     firstName: String,
     lastName: String
-  }
+  },
+  title: {type: String, required: true},
+  content: {type: String},
+  created: {type: Date, default: Date.now}
 });
 
 blogpostSchema.virtual('blogpostString').get(function() {
@@ -17,9 +18,10 @@ blogpostSchema.methods.apiRepr = function() {
 
   return {
     id: this._id,
+    author: this.blogpostString,
     title: this.title,
     content: this.content,
-    author: this.blogpostString
+    created: this.created
   };
 }
 const Blogpost = mongoose.model('Blogpost', blogpostSchema);
