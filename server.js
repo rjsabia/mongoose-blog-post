@@ -7,7 +7,7 @@ mongoose.Promise = global.Promise;
 
 // config.js is where we control constants for entire
 // app like PORT and DATABASE_URL
-const {PORT, DATABASE_URL} = require('./config');
+const {DATABASE_URL, PORT} = require('./config');
 const {Blogpost} = require('./models');
 
 const app = express();
