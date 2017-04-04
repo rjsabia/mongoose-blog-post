@@ -64,8 +64,8 @@ app.post('/blogpost', (req, res) => {
       title: req.body.title,
       content: req.body.content,
       author: req.body.author
-    .then(
-      blogpost => res.status(201).json(blogpost.apiRepr()))
+    })
+    .then(blogpost => res.status(201).json(blogpost.apiRepr()))
     .catch(err => {
       console.error(err);
       res.status(500).json({message: 'Internal server error'});
