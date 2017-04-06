@@ -4,7 +4,8 @@
   "description": "blog post that uses mongoose to interact with mongo",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "mocha"
   },
   "author": "Russell Sabia",
   "license": "MIT",
