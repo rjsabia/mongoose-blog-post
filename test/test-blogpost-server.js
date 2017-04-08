@@ -54,25 +54,17 @@ function generateLastName() {
   return last_Name[Math.floor(Math.random() * last_Name.length)];
 }
 
-// generate an object represnting a restaurant.
-// can be used to generate seed data for db
-// or request.body data
 function generateBlogpostData() {
   return {
-    title: faker.title.generateBlogTitle(),
+    title: generateBlogTitle(),
     content: generateContent(),
     author: {
-      firstName: faker.address.generateFirstName(),
-      lastName: faker.address.generateLastName()
+      firstName: generateFirstName(),
+      lastName: generateLastName()
     }
   }
 }
 
-
-// this function deletes the entire database.
-// we'll call it in an `afterEach` block below
-// to ensure  ata from one test does not stick
-// around for next one
 function tearDownDb() {
     console.warn('Deleting database');
     return mongoose.connection.dropDatabase();
@@ -80,10 +72,6 @@ function tearDownDb() {
 
 describe('Blogpost API resource', function() {
 
-  // we need each of these hook functions to return a promise
-  // otherwise we'd need to call a `done` callback. `runServer`,
-  // `seedRestaurantData` and `tearDownDb` each return a promise,
-  // so we return the value returned by these function calls.
   before(function() {
     return runServer(TEST_DATABASE_URL);
   });
@@ -100,20 +88,10 @@ describe('Blogpost API resource', function() {
     return closeServer();
   })
 
-  // note the use of nested `describe` blocks.
-  // this allows us to make clearer, more discrete tests that focus
-  // on proving something small
   describe('GET endpoint', function() {
 
     it('should return all existing blogpostings', function() {
-      // strategy:
-      //    1. get back all restaurants returned by by GET request to `/restaurants`
-      //    2. prove res has right status, data type
-      //    3. prove the number of restaurants we got back is equal to number
-      //       in db.
-      //
-      // need to have access to mutate and access `res` across
-      // `.then()` calls below, so declare it here so can modify in place
+     
       let res;
       return chai.request(app)
         .get('/blogpost')
@@ -129,151 +107,122 @@ describe('Blogpost API resource', function() {
           res.body.blogpost.should.have.length.of(count);
         });
     });
-//############################################################################
-//stopped here ################################
-//############################################################################
 
     it('should return blogpost with right fields', function() {
-      // Strategy: Get back all restaurants, and ensure they have expected keys
 
-      let resRestaurant;
+      let resBlogpost;
       return chai.request(app)
-        .get('/restaurants')
+        .get('/blogpost')
         .then(function(res) {
           res.should.have.status(200);
           res.should.be.json;
-          res.body.restaurants.should.be.a('array');
-          res.body.restaurants.should.have.length.of.at.least(1);
+          res.body.blogpost.should.be.a('array');
+          res.body.blogpost.should.have.length.of.at.least(1);
 
-          res.body.restaurants.forEach(function(restaurant) {
-            restaurant.should.be.a('object');
-            restaurant.should.include.keys(
-              'id', 'name', 'cuisine', 'borough', 'grade', 'address');
+          res.body.blogpost.forEach(function(blogpost) {
+            blogpost.should.be.a('object');
+            blogpost.should.include.keys(
+              'id', 'title', 'content', 'author');
           });
-          resRestaurant = res.body.restaurants[0];
-          return Restaurant.findById(resRestaurant.id);
+          resBlogpost = res.body.blogpost[0];
+          return Blogpost.findById(resBlogpost.id);
         })
-        .then(function(restaurant) {
+        .then(function(blogpost) {
 
-          resRestaurant.id.should.equal(restaurant.id);
-          resRestaurant.name.should.equal(restaurant.name);
-          resRestaurant.cuisine.should.equal(restaurant.cuisine);
-          resRestaurant.borough.should.equal(restaurant.borough);
-          resRestaurant.address.should.contain(restaurant.address.building);
-
-          resRestaurant.grade.should.equal(restaurant.grade);
+          resBlogpost.id.should.equal(blogpost.id);
+          resBlogpost.title.should.equal(blogpost.title);
+          resBlogpost.content.should.equal(blogpost.content);
+          resBlogpost.author.should.contain(blogpost.author.firstName);
+          resBlogpost.author.should.contain(blogpost.author.lastName);
         });
     });
   });
 
   describe('POST endpoint', function() {
-    // strategy: make a POST request with data,
-    // then prove that the restaurant we get back has
-    // right keys, and that `id` is there (which means
-    // the data was inserted into db)
-    it('should add a new restaurant', function() {
+   
+    it('should add a new blog posting', function() {
 
-      const newRestaurant = generateRestaurantData();
-      let mostRecentGrade;
+      const newBlogpost = generateBlogpostData();
 
       return chai.request(app)
-        .post('/restaurants')
-        .send(newRestaurant)
+        .post('/blogpost')
+        .send(newBlogpost)
         .then(function(res) {
           res.should.have.status(201);
           res.should.be.json;
           res.body.should.be.a('object');
           res.body.should.include.keys(
-            'id', 'name', 'cuisine', 'borough', 'grade', 'address');
-          res.body.name.should.equal(newRestaurant.name);
+            'id', 'title', 'content', 'author');
+          res.body.title.should.equal(newBlogpost.title);
           // cause Mongo should have created id on insertion
           res.body.id.should.not.be.null;
-          res.body.cuisine.should.equal(newRestaurant.cuisine);
-          res.body.borough.should.equal(newRestaurant.borough);
-
-          mostRecentGrade = newRestaurant.grades.sort(
-            (a, b) => b.date - a.date)[0].grade;
-
-          res.body.grade.should.equal(mostRecentGrade);
-          return Restaurant.findById(res.body.id);
+          res.body.content.should.equal(newBlogpost.content);
+          res.body.author.should.contain(newBlogpost.author.firstName);
+          res.body.author.should.contain(newBlogpost.author.lastName);
+          return Blogpost.findById(res.body.id);
         })
-        .then(function(restaurant) {
-          restaurant.name.should.equal(newRestaurant.name);
-          restaurant.cuisine.should.equal(newRestaurant.cuisine);
-          restaurant.borough.should.equal(newRestaurant.borough);
-          restaurant.name.should.equal(newRestaurant.name);
-          restaurant.grade.should.equal(mostRecentGrade);
-          restaurant.address.building.should.equal(newRestaurant.address.building);
-          restaurant.address.street.should.equal(newRestaurant.address.street);
-          restaurant.address.zipcode.should.equal(newRestaurant.address.zipcode);
+        .then(function(blogpost) {
+          blogpost.title.should.equal(newBlogpost.title);
+          blogpost.content.should.equal(newBlogpost.content);
+          blogpost.author.firstName.should.equal(newBlogpost.author.firstName); 
+          blogpost.author.lastName.should.equal(newBlogpost.author.lastName); 
         });
     });
   });
+  //###########################################################
 
   describe('PUT endpoint', function() {
 
-    // strategy:
-    //  1. Get an existing restaurant from db
-    //  2. Make a PUT request to update that restaurant
-    //  3. Prove restaurant returned by request contains data we sent
-    //  4. Prove restaurant in db is correctly updated
     it('should update fields you send over', function() {
       const updateData = {
-        name: 'fofofofofofofof',
-        cuisine: 'futuristic fusion'
+        title: 'good day',
+        content: 'skipidy do dah, skipidy day'
       };
 
-      return Restaurant
+      return Blogpost
         .findOne()
         .exec()
-        .then(function(restaurant) {
-          updateData.id = restaurant.id;
+        .then(function(blogpost) {
+          updateData.id = blogpost.id;
 
           // make request then inspect it to make sure it reflects
           // data we sent
           return chai.request(app)
-            .put(`/restaurants/${restaurant.id}`)
+            .put(`/blogpost/${blogpost.id}`)
             .send(updateData);
         })
         .then(function(res) {
           res.should.have.status(204);
 
-          return Restaurant.findById(updateData.id).exec();
+          return Blogpost.findById(updateData.id).exec();
         })
-        .then(function(restaurant) {
-          restaurant.name.should.equal(updateData.name);
-          restaurant.cuisine.should.equal(updateData.cuisine);
+        .then(function(blogpost) {
+          blogpost.title.should.equal(updateData.title);
+          blogpost.content.should.equal(updateData.content);
         });
       });
   });
 
   describe('DELETE endpoint', function() {
-    // strategy:
-    //  1. get a restaurant
-    //  2. make a DELETE request for that restaurant's id
-    //  3. assert that response has right status code
-    //  4. prove that restaurant with the id doesn't exist in db anymore
-    it('delete a restaurant by id', function() {
+    
+    it('delete a blogpost by id', function() {
 
-      let restaurant;
+      let blogpost;
 
-      return Restaurant
+      return Blogpost
         .findOne()
         .exec()
-        .then(function(_restaurant) {
-          restaurant = _restaurant;
-          return chai.request(app).delete(`/restaurants/${restaurant.id}`);
+        .then(function(_blogpost) {
+          blogpost = _blogpost;
+          return chai.request(app).delete(`/blogpost/${blogpost.id}`);
         })
         .then(function(res) {
           res.should.have.status(204);
-          return Restaurant.findById(restaurant.id).exec();
+          return Blogpost.findById(blogpost.id).exec();
         })
-        .then(function(_restaurant) {
-          // when a variable's value is null, chaining `should`
-          // doesn't work. so `_restaurant.should.be.null` would raise
-          // an error. `should.be.null(_restaurant)` is how we can
-          // make assertions about a null value.
-          should.not.exist(_restaurant);
+        .then(function(_blogpost) {
+          
+          should.not.exist(_blogpost);
         });
     });
   });

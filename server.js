@@ -101,7 +101,7 @@ app.put('/blogpost/:id', (req, res) => {
 });
 
 app.delete('/blogpost/:id', (req, res) => {
-  Restaurant
+  Blogpost
     .findByIdAndRemove(req.params.id)
     .exec()
     .then(blogpost => res.status(204).end())
