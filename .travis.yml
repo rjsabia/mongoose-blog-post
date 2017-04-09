@@ -2,3 +2,14 @@ language: node_js
 node_js: node
 services:
 - mongodb
+deploy:
+  provider: heroku
+  api_key:
+    secure: jcJeUg7cWLoSVsRDK2AeFpO40w0wHU9UEcZq52rlqBJhMxh6z3Suru7YBw3jXYHEdvLzqx5SKDcyz4dvLhQyzCbMxea1Sq5fo8ZAmOfV/7s2lfYsqUpX4g+d02H2hPWPM+K8/cKb0dxXfg81tuLxgffvis9ac2rw76kVFlqgcrEV77OSAfhoF+zBwJ90xJ5daNVqHGA+EY8ovjZFv9GVXmYH9j5DrqxtQia3Jum6NTnTWHHvZmC6pfKTSdEmPLE3u5y81y/kZzPQmbyXzNruR/le+KsSTqIPW4kpuBzVVq9plc3Kq722bsRIkksGBR8ZMozCrL8PyrrpO75/Sefxu7xT3+fZwKBfLppRW34F1XG4vlCJqFvofzLkOdXn4v729kWNxLOYiRwSCZ9KGwYLrDmWg/30lKYiCwT2IHKItvLeM+2ox9mI47tzRBs3JoALa66s0bspDjlx2BkXz1qzmfiAl6Ga5EtlPIqDSOXOF7Q016hdVlJgLnXp6YM7IpoLDmdB56KpQiAJGph+dDXZWc79cfpr7JmMtOV62A8cJUYE+Y++7nUld6mA3M0icgtJ3nxHPu7yteqdjXewzZ0VGWyz3xsgZiGU00fMdV7MmRebra8uQbm9VwEtPHN+cL9TWGS+CGdBYVPPlUAw84AZpr0j2hyeWiQQM+yk1rC1UA4=
+  app: blooming-chamber-27687
+  on:
+    repo: rjsabia/mongoose-blog-post
+
+
+
+# salty-hollows-85676
