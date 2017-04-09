@@ -6,10 +6,3 @@ exports.TEST_DATABASE_URL = (
 	'mongodb://localhost/test-mongoose-blog-post');
 exports.PORT = process.env.PORT || 8080;
 
-
-
-
-
-
-// exports.PORT = process.env.PORT || 8080;
-// console.log(process.env.DATABASE_URL);

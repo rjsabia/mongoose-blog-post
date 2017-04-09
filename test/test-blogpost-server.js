@@ -2,22 +2,13 @@ const chai = require('chai');
 const chaiHttp = require('chai-http');
 const faker = require('faker');
 const mongoose = require('mongoose');
-
-// this makes the should syntax available throughout
-// this module
 const should = chai.should();
-
 const {Blogpost} = require('../models');
 const {app, runServer, closeServer} = require('../server');
 const {TEST_DATABASE_URL} = require('../config');
 
 chai.use(chaiHttp);
 
-// used to put randomish documents in db
-// so we have data to work with and assert about.
-// we use the Faker library to automatically
-// generate placeholder values for author, title, content
-// and then we insert that data into mongo
 function seedBlogpostData() {
   console.info('seeding Blog data');
   const seedData = [];
@@ -169,7 +160,6 @@ describe('Blogpost API resource', function() {
         });
     });
   });
-  //###########################################################
 
   describe('PUT endpoint', function() {
 
